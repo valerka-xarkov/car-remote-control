@@ -1,5 +1,4 @@
 import { DrivingWheelTurnEventName, SteeringWheel } from 'simple-steering-wheel';
-import '../css/index.css';
 import { debounce } from './utils';
 const wheel: SteeringWheel = document.querySelector('#servo');
 const whileAngle = document.getElementById('wheel-angle');
