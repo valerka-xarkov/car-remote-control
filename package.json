@@ -1,0 +1,48 @@
+{
+  "name": "custom-elements",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run": "tsc --baseUrl ./src/ts --outDir ./dist",
+    "start": "webpack",
+    "build:prod": "webpack --config webpack.prod.config.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "css-loader": "^3.3.2",
+    "gulp": "^4.0.2",
+    "gulp-typescript": "^5.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "inline-script-loader": "^1.0.7",
+    "script-loader": "^0.7.2",
+    "simple-steering-wheel": "^0.2.1",
+    "style-loader": "^1.0.1",
+    "terser-webpack-plugin": "^2.3.0",
+    "typescript": "^3.7.3",
+    "webpack-cli": "^3.3.9"
+  },
+  "dependencies": {
+    "@babel/core": "^7.6.4",
+    "@types/lodash": "^4.14.144",
+    "babelify": "^10.0.0",
+    "browserify": "^16.5.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.0.4",
+    "eslint": "^6.4.0",
+    "html-minifier-terser": "^5.0.2",
+    "html-webpack-inline-source-plugin": "0.0.10",
+    "html-webpack-inline-style-plugin": "^0.2.0",
+    "lodash": "^4.17.15",
+    "script-ext-html-webpack-plugin": "^2.1.4",
+    "ts-loader": "^6.2.0",
+    "tsify": "^4.0.1",
+    "tslint": "^5.20.0",
+    "vinyl-source-stream": "^2.0.0",
+    "watchify": "^3.11.1",
+    "webpack": "^4.41.2"
+  }
+}

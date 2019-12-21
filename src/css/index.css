@@ -1,0 +1,47 @@
+.main {
+  display: flex;
+  justify-content: space-between;
+}
+
+steering-wheel {
+  display: block;
+  width: 500px;
+  height: 500px;
+  overflow: hidden;
+}
+
+path {
+  fill: #F525E8;
+  fill: pink;
+  transform-origin: 50% 50%;
+}
+
+.speed-control-wrapper {
+  position: relative;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  width: 90vh;
+  padding: 0 5px;
+  height: 80px;
+  transform: rotate(-90deg);
+  position: absolute;
+  right: -35vh;
+  top: 0;
+}
+
+::-webkit-slider-runnable-track {
+  background: #ddd;
+}
+
+::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 60px;
+  /* 1 */
+  height: 80px;
+  background: #fff;
+
+  border: 2px solid #999;
+  /* 1 */
+}
