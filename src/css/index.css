@@ -28,14 +28,10 @@ path {
 
 input[type=range] {
   --width: 80px;
-  -webkit-appearance: none;
-  width: var(--size);
+  -webkit-appearance: slider-vertical;
+  width: var(--width);
   padding: 0 5px;
-  height: var(--width);
-  transform: rotate(-90deg);
-  position: absolute;
-  right: calc(var(--width) / 2 - var(--size) / 2);
-  top: calc(var(--size) / 2 - var(--width) / 2);
+  height: var(--size);
 }
 
 ::-webkit-slider-runnable-track {
@@ -43,10 +39,12 @@ input[type=range] {
 }
 
 ::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 60px;
+  width: var(--width);
+  min-width: var(--width);
   /* 1 */
-  height: 80px;
+  --height: 60px;
+  height: var(--height);
+  min-height: var(--height);
   background: #fff;
 
   border: 2px solid #999;

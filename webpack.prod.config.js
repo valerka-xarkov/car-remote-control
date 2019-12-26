@@ -58,7 +58,7 @@ module.exports = {
     {
       apply: (compiler) => {
         compiler.hooks.done.tap('AfterEmitPlugin', () => {
-          const result = fs.readFileSync('./dist/index.html', 'utf8');
+          const result = fs.readFileSync('./dist/index.html', 'utf8') + '\n\n';
           const jsonResult = JSON.stringify({data: result});
           fs.writeFileSync('./dist/result.txt', jsonResult.substr(8, jsonResult.length - 8 - 1));
         });

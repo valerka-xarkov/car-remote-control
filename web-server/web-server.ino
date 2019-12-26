@@ -1,0 +1,187 @@
+/*
+  WiFiAccessPoint.ino creates a WiFi access point and provides a web server on it.
+
+  Steps:
+  1. Connect to the access point "yourAp"
+  2. Point your web browser to http://192.168.4.1/H to turn the LED on or http://192.168.4.1/L to turn it off
+     OR
+     Run raw TCP "GET /H" and "GET /L" on PuTTY terminal with 192.168.4.1 as IP address and 80 as port
+
+  Created for arduino-esp32 on 04 July, 2018
+  by Elochukwu Ifediora (fedy0)
+*/
+
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WiFiAP.h>
+#include <ESPmDNS.h>
+#include <DNSServer.h>
+#include <WebServer.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
+#define LED_BUILTIN 2   // Set the GPIO pin where you connected your test LED or comment this line out if your dev board has a built-in LED
+const int ledPin = 2;
+const int freq = 5000;
+const int ledChannel = 0;
+const int resolution = 8;
+
+const int servoPin = 4;
+const int servoChannel = 1;
+const int servoResolution = 16;
+const int servoFreq = 50;
+
+// Set these to your desired credentials.
+const char *ssid = "my-car";
+const char *password = "my-super-car";
+// DNS server
+const byte DNS_PORT = 53;
+DNSServer dnsServer;
+
+WebServer server(80);
+
+void setup() {
+  // pinMode(LED_BUILTIN, OUTPUT);
+
+  ledcSetup(ledChannel, freq, resolution);
+  // attach the channel to the GPIO to be controlled
+  ledcAttachPin(ledPin, ledChannel);
+
+  ledcSetup(servoChannel, servoFreq, servoResolution);
+  ledcAttachPin(servoPin, servoChannel);
+
+  Serial.begin(115200);
+  Serial.println();
+  Serial.println("Configuring access point...");
+
+  // You can remove the password parameter if you want the AP to be open.
+  WiFi.softAP(ssid, password);
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+
+  server.on("/", handleRoot);
+  server.on("/wheels", handleWheels);
+  // server.on("/inline", []() {
+  //   server.send(200, "text/plain", "this works as well");
+  // });
+  server.onNotFound(handleNotFound);
+  server.begin();
+
+  Serial.println("Server started");
+  dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+  dnsServer.start(DNS_PORT, "*", myIP);
+}
+void handleRoot() {
+  String message = "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no\"><meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\"><title>Car</title><style>.main{display:flex;justify-content:space-between;--size:300px}steering-wheel{display:block;overflow:hidden}steering-wheel,svg{width:var(--size);height:var(--size)}path{fill:#f525e8;fill:pink;transform-origin:50% 50%}.speed-control-wrapper{position:relative}input[type=range]{--width:80px;-webkit-appearance:slider-vertical;width:var(--width);padding:0 5px;height:var(--size)}::-webkit-slider-runnable-track{background:#ddd}::-webkit-slider-thumb{width:var(--width);min-width:var(--width);--height:60px;height:var(--height);min-height:var(--height);background:#fff;border:2px solid #999}</style></head><body><div class=\"main\"><div class=\"wheel\"><steering-wheel id=\"servo\" value=\"0\" min-angle=\"-96\" max-angle=\"96\" step=\"2\"><svg viewBox=\"0 0 32 32\"><path d=\"M16,0C7.164,0,0,7.164,0,16s7.164,16,16,16s16-7.164,16-16S24.836,0,16,0z M16,4 c5.207,0,9.605,3.354,11.266,8H4.734C6.395,7.354,10.793,4,16,4z M16,18c-1.105,0-2-0.895-2-2s0.895-2,2-2s2,0.895,2,2 S17.105,18,16,18z M4,16c5.465,0,9.891,5.266,9.984,11.797C8.328,26.828,4,21.926,4,16z M18.016,27.797 C18.109,21.266,22.535,16,28,16C28,21.926,23.672,26.828,18.016,27.797z\"/></svg></steering-wheel><span id=\"wheel-angle\"></span></div><div class=\"speed-control-wrapper\"><input type=\"range\" min=\"-100\" max=\"100\" value=\"0\" step=\"20\" id=\"speed-control\" orient=\"vertical\"></div></div><span id=\"speed-control-value\"></span><script>!function(e){var t={};function n(i){if(t[i])return t[i].exports;var s=t[i]={i:i,l:!1,exports:{}};return e[i].call(s.exports,s,s.exports,n),s.l=!0,s.exports}n.m=e,n.c=t,n.d=function(e,t,i){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:i})},n.r=function(e){\"undefined\"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:\"Module\"}),Object.defineProperty(e,\"__esModule\",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&\"object\"==typeof e&&e&&e.__esModule)return e;var i=Object.create(null);if(n.r(i),Object.defineProperty(i,\"default\",{enumerable:!0,value:e}),2&t&&\"string\"!=typeof e)for(var s in e)n.d(i,s,function(t){return e[t]}.bind(null,s));return i},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,\"a\",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p=\"\",n(n.s=0)}([function(e,t,n){n(1),e.exports=n(4)},function(e,t,n){\"use strict\";Object.defineProperty(t,\"__esModule\",{value:!0});const i=n(2),s=n(3),o=document.querySelector(\"#servo\"),r=document.getElementById(\"wheel-angle\");let u=0,l=0;const h=s.debounce((function(){const e=new URL(\"/wheels\",location.origin);e.search=new URLSearchParams({driveWheelAngle:u.toString(),drivePower:l.toString()}).toString(),fetch(e.href,{cache:\"no-cache\",method:\"PUT\"})}),50,100);o.addEventListener(i.DrivingWheelTurnEventName,(function(){u=o.value,h(),r.innerText=o.value.toString()}));const c=document.getElementById(\"speed-control\"),a=document.getElementById(\"speed-control-value\");c.addEventListener(\"input\",e=>{l=+c.value,e.stopPropagation(),h(),a.innerText=c.value})},function(e,t,n){\"use strict\";n.r(t),n.d(t,\"DrivingWheelTurnEventName\",(function(){return s})),n.d(t,\"SteeringWheel\",(function(){return o}));const i=100/60,s=\"input\";class o extends HTMLElement{constructor(){super(),this.interacting=!1,this.visibleAngle=0,this.curAngle=0,this.curStep=1,this.userActionInitialAngle=0,this.minPossibleAngle=-1/0,this.maxPossibleAngle=1/0,this.onMouseDown=this.onMouseDown.bind(this),this.onMouseMove=this.onMouseMove.bind(this),this.onMouseUp=this.onMouseUp.bind(this),this.onTouchStart=this.onTouchStart.bind(this);const e=this.attachShadow({mode:\"open\"});this.wheel=document.createElement(\"div\"),this.wheel.appendChild(document.createElement(\"slot\")),e.appendChild(this.wheel),this.prepareStyles()}get value(){return this.curAngle}set value(e){this.setCurAngle(e)}get minAngle(){return this.minPossibleAngle}set minAngle(e){this.minPossibleAngle=e}get maxAngle(){return this.maxPossibleAngle}set maxAngle(e){this.maxPossibleAngle=e}get step(){return this.curStep}set step(e){this.curStep=e}connectedCallback(){for(const e of[\"minAngle\",\"maxAngle\",\"value\",\"step\"])this.upgradeProperty(e);this.initEvents()}disconnectedCallback(){this.removeEvents(),this.onMouseUp()}attributeChangedCallback(e,t,n){switch(e){case\"value\":return void(Number.isFinite(Number(n))&&this.setCurAngle(Number(n)));case\"min-angle\":return void(this.minAngle=Number.isFinite(Number(n))?Number(n):this.minAngle);case\"max-angle\":return void(this.maxAngle=Number.isFinite(Number(n))?Number(n):this.maxAngle);case\"step\":const e=Number(n);return void(this.step=Number.isFinite(e)&&e>0?Number(n):this.step)}}prepareStyles(){const e=document.createElement(\"style\");e.textContent=\" div { position: absolute;  }\\n                          slot { display: block; font-size: 0;} \",this.shadowRoot.appendChild(e)}upgradeProperty(e){if(this.hasOwnProperty(e)){const t=this[e];delete this[e],this[e]=t}}initEvents(){this.wheel.addEventListener(\"mousedown\",this.onMouseDown),this.wheel.addEventListener(\"touchstart\",this.onTouchStart)}removeEvents(){this.wheel.removeEventListener(\"mousedown\",this.onMouseDown),this.wheel.removeEventListener(\"touchstart\",this.onTouchStart)}moveSlowlyTo(e,t=!1){const n=Math.abs(this.curAngle-e)*i;this.wheel.style.transition=`transform ${n/1e3}s ease-out 0s`,this.setCurAngle(e,t),setTimeout(()=>this.wheel.style.transition=null,n+50)}onMouseDown(e){this.interacting||(document.addEventListener(\"mousemove\",this.onMouseMove),document.addEventListener(\"mouseup\",this.onMouseUp)),this.interacting=!0,this.userActionInitialAngle=this.getAngle(e)}onTouchStart(e){if(!this.interacting){const t=e.changedTouches[0];this.touchIdentifier=t.identifier,document.addEventListener(\"touchmove\",this.onMouseMove),document.addEventListener(\"touchend\",this.onMouseUp),this.userActionInitialAngle=this.getAngle(t),e.preventDefault()}this.interacting=!0}onMouseMove(e){let t=null;if(e instanceof TouchEvent){if(t=Array.prototype.find.call(e.changedTouches,e=>e.identifier===this.touchIdentifier),!t)return}else t=e;const n=this.getAngle(t),i=n-this.userActionInitialAngle;this.userActionInitialAngle=n;const s=[i-360,i,i+360],o=s.reduce((e,t)=>Math.abs(e)<Math.abs(t)?e:t,s.pop());this.setCurAngle(this.visibleAngle+o,!0)}setCurAngle(e,t=!1){let n;n=e<this.minAngle?this.minAngle:e>this.maxAngle?this.maxAngle:e;const i=Math.round(n/this.step)*this.step;this.visibleAngle=t?n:i,this.wheel.style.transform=`rotate(${this.visibleAngle}deg)`,t&&i!==this.curAngle&&(this.curAngle=i,this.dispatchEvent(new Event(s)))}getAngle(e){const t=this.wheel.getBoundingClientRect(),n=(t.left+t.right)/2,i=(t.top+t.bottom)/2-e.clientY,s=e.clientX-n,o=90-Math.atan2(i,s)*(180/Math.PI);return o>180?o-360:o}onMouseUp(){this.removeDynamicEventListeners(),this.moveSlowlyTo(this.curAngle),this.interacting=!1}removeDynamicEventListeners(){document.removeEventListener(\"mousemove\",this.onMouseMove),document.removeEventListener(\"mouseup\",this.onMouseUp),document.removeEventListener(\"touchmove\",this.onMouseMove),document.removeEventListener(\"touchend\",this.onMouseUp)}}o.observedAttributes=[\"value\",\"min-angle\",\"max-angle\",\"step\"],customElements.define(\"steering-wheel\",o)},function(e,t,n){\"use strict\";Object.defineProperty(t,\"__esModule\",{value:!0}),t.debounce=function(e,t,n){let i,s;return(...o)=>{clearTimeout(i),i=window.setTimeout(()=>{e.apply(null,o),clearTimeout(s),s=null},t),s||(s=window.setTimeout(()=>{e.apply(null,o),s=null,clearTimeout(i)},n))}}},function(e,t,n){}]);</script></body></html>\n\n";
+  server.send(200, "text/html", message);
+}
+
+void handleWheels() {
+  for (uint8_t i = 0; i < server.args(); i++) {
+    String arg = server.argName(i);
+    Serial.println("argName");
+    Serial.println(arg);
+    Serial.println("argValue");
+    String unParsedValue = server.arg(i);
+    char charBuf[unParsedValue.length() + 1];
+    unParsedValue.toCharArray(charBuf, unParsedValue.length()+1);
+
+    int value = atoi(charBuf);
+    Serial.println(value);
+    if (arg == "drivePower") {
+        ledcWrite(ledChannel, 100 + value);
+    }
+
+    if (arg == "driveWheelAngle") {
+      const float minAngle = -96;
+      const float maxAngle = 96;
+      const float minTime = 500; //ms
+      const float maxTime = 2260; // ms
+      const float miliSecondsCount = 1000000;
+      const float maxPwm = 65536;
+      const float pwm = maxPwm * (minTime + (maxTime - minTime) * (value - minAngle) / (maxAngle - minAngle)) / miliSecondsCount  * 50;
+      Serial.println("PWM");
+      Serial.println(pwm);
+      Serial.println((int)pwm);
+      ledcWrite(servoChannel, pwm);
+    }
+  }
+
+  server.send(200, "text/plain", "ok\n\n");
+
+}
+void handleNotFound() {
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += server.uri();
+  message += "\nMethod: ";
+  message += (server.method() == HTTP_GET) ? "GET" : "POST";
+  message += "\nArguments: ";
+  message += server.args();
+  message += "\n";
+
+  for (uint8_t i = 0; i < server.args(); i++) {
+    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+  }
+
+  server.send(404, "text/plain", message);
+}
+
+void loop(void) {
+  server.handleClient();
+  dnsServer.processNextRequest();
+}
+// void loop() {
+//   WiFiClient client = server.available();   // listen for incoming clients
+
+//   if (client) {                             // if you get a client,
+//     Serial.println("New Client.");           // print a message out the serial port
+//     String currentLine = "";                // make a String to hold incoming data from the client
+//     while (client.connected()) {            // loop while the client's connected
+//       if (client.available()) {             // if there's bytes to read from the client,
+//         char c = client.read();             // read a byte, then
+//         Serial.write(c);                    // print it out the serial monitor
+//         if (c == '\n') {                    // if the byte is a newline character
+
+//           // if the current line is blank, you got two newline characters in a row.
+//           // that's the end of the client HTTP request, so send a response:
+//           if (currentLine.length() == 0) {
+//             // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+//             // and a content-type so the client knows what's coming, then a blank line:
+//             client.println("HTTP/1.1 200 OK");
+//             client.println("Content-type:text/html");
+//             client.println();
+
+//             // the content of the HTTP response follows the header:
+//             client.print("Click <a href=\"/H\">here</a> to turn ON the LED.<br>");
+//             client.print("Click <a href=\"/L\">here</a> to turn OFF the LED.<br>");
+
+//             // The HTTP response ends with another blank line:
+//             client.println();
+//             // break out of the while loop:
+//             break;
+//           } else {    // if you got a newline, then clear currentLine:
+//             currentLine = "";
+//           }
+//         } else if (c != '\r') {  // if you got anything else but a carriage return character,
+//           currentLine += c;      // add it to the end of the currentLine
+//         }
+
+//         // Check to see if the client request was "GET /H" or "GET /L":
+//         if (currentLine.endsWith("GET /H")) {
+//           digitalWrite(LED_BUILTIN, HIGH);               // GET /H turns the LED on
+//         }
+//         if (currentLine.endsWith("GET /L")) {
+//           digitalWrite(LED_BUILTIN, LOW);                // GET /L turns the LED off
+//         }
+//       }
+//     }
+//     // close the connection:
+//     client.stop();
+//     Serial.println("Client Disconnected.");
+//   }
+//   //DNS
+//   dnsServer.processNextRequest();
+// }

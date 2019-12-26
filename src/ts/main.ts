@@ -6,12 +6,10 @@ const whileAngle = document.getElementById('wheel-angle');
 let steering = 0;
 let power = 0;
 function sendRequest() {
-  fetch('/wheels', {
-    body: JSON.stringify({ driveWheelAngle: steering, drivePower: power }),
+  const url = new URL('/wheels', location.origin);
+  url.search = new URLSearchParams({ driveWheelAngle: steering.toString(), drivePower: power.toString() }).toString()
+  fetch(url.href, {
     cache: 'no-cache',
-    headers: {
-      'Content-Type': 'application/json'
-    },
     method: 'PUT',
   });
 }
