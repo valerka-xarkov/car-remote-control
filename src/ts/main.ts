@@ -7,7 +7,8 @@ let steering = 0;
 let power = 0;
 function sendRequest() {
   const url = new URL('/wheels', location.origin);
-  url.search = new URLSearchParams({ driveWheelAngle: steering.toString(), drivePower: power.toString() }).toString()
+  const effectivePower = power ? Math.sign(power) * (Math.abs(power) + 60) : 0;
+  url.search = new URLSearchParams({ driveWheelAngle: steering.toString(), drivePower: effectivePower.toString() }).toString()
   fetch(url.href, {
     cache: 'no-cache',
     method: 'PUT',
