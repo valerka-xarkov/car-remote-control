@@ -1,33 +1,71 @@
 import { DrivingWheelTurnEventName, SteeringWheel } from 'simple-steering-wheel';
-import { debounce } from './utils';
+// import { debounce } from './utils';
 const wheel: SteeringWheel = document.querySelector('#servo');
 const whileAngle = document.getElementById('wheel-angle');
+const debugMonitor = document.querySelector('.debug-monitor');
 
-let steering = 0;
-let power = 0;
-function sendRequest() {
+let nextTaskData: {[key in Props]: string};
+let inTask = false;
+enum Props {
+  angle = 'driveWheelAngle',
+  power = 'drivePower'
+}
+
+type RequestData = {[key in Props]?: string};
+
+function showDebugLine(value, className = '') {
+  const line = document.createElement('div');
+  line.innerText = value;
+  line.className = className;
+  debugMonitor.appendChild(line);
+  debugMonitor.scrollTop = 100000000;
+}
+function sendRequest(request: RequestData) {
+  const time = Date.now();
+  inTask = true;
+  console.log(new Date().toISOString())
+
   const url = new URL('/wheels', location.origin);
-  const effectivePower = power ? Math.sign(power) * (Math.abs(power) + 60) : 0;
-  url.search = new URLSearchParams({ driveWheelAngle: steering.toString(), drivePower: effectivePower.toString() }).toString()
+  // url.search = new URLSearchParams({ driveWheelAngle: curSteering.toString(), drivePower: effectivePower.toString() }).toString()
+  url.search = new URLSearchParams(request).toString()
+
   fetch(url.href, {
     cache: 'no-cache',
     method: 'PUT',
+  })
+  // .then(() => new Promise(r => setTimeout(() => r(), 1000)))
+  .finally(() => {
+    inTask = false;
+    if (nextTaskData) {
+      sendRequest(nextTaskData)
+      nextTaskData = null;
+    }
+    const interval = Date.now() - time;
+    showDebugLine(`${JSON.stringify(request)}, ${interval}ms`, interval > 50 ? 'danger': '')
   });
 }
-const debouncedSendRequest = debounce(sendRequest, 50, 100);
+function sendRequestSubsiquentelly(data: RequestData) {
+  if (inTask) {
+    nextTaskData = Object.assign({}, nextTaskData, data);
+  } else {
+    sendRequest(data);
+  }
+}
 
 function handler() {
-  steering = wheel.value;
-  debouncedSendRequest();
-  whileAngle.innerText = wheel.value.toString();
+  const value = wheel.value.toString();
+  sendRequestSubsiquentelly({[Props.angle]: value});
+  whileAngle.innerText = value;
 }
 wheel.addEventListener(DrivingWheelTurnEventName, handler);
 
 const speedControl = document.getElementById('speed-control') as HTMLInputElement;
 const speedValue = document.getElementById('speed-control-value');
 speedControl.addEventListener('input', e => {
-  power = + speedControl.value;
   e.stopPropagation();
-  debouncedSendRequest();
+  const curPower = +speedControl.value;
+  const effectivePower = curPower ? Math.sign(curPower) * (Math.abs(curPower) + 60) : 0;
+
+  sendRequestSubsiquentelly({[Props.power]: effectivePower.toString()});
   speedValue.innerText = speedControl.value;
 });

@@ -50,3 +50,18 @@ input[type=range] {
   border: 2px solid #999;
   /* 1 */
 }
+
+.debug-monitor {
+  height: 100px;
+  bottom: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: auto;
+  border: 1px solid black;
+  padding: 5px;
+}
+
+.danger {
+  color: red;
+}
