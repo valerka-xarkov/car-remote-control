@@ -50,7 +50,7 @@ WebServer server(80);
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(engEnabledPin, OUTPUT);
+  // pinMode(engEnabledPin, OUTPUT);
   pinMode(engFirstPin, OUTPUT);
   pinMode(engSecondPin, OUTPUT);
 
@@ -118,6 +118,11 @@ void handleWheels() {
         digitalWrite(engSecondPin, HIGH);
         digitalWrite(LED_BUILTIN, LOW);
       }
+      // if (value == 0) {
+      //   digitalWrite(engEnabledPin, LOW);
+      // } else {
+      //   digitalWrite(engEnabledPin, HIGH);
+      // }
       ledcWrite(engChanel, (int)power);
     }
 
@@ -128,7 +133,7 @@ void handleWheels() {
       const float maxTime = 2260; // ms
       const float microSecondsCount = 1000000;
       const float maxPwm = 65536;
-      const float pwm = maxPwm * (minTime + (maxTime - minTime) * (value - minAngle) / (maxAngle - minAngle)) / microSecondsCount  * servoFreq;
+      const float pwm = maxPwm * (minTime + (maxTime - minTime) * (-value - minAngle) / (maxAngle - minAngle)) / microSecondsCount  * servoFreq;
       Serial.println("PWM");
       Serial.println(pwm);
       Serial.println((int)pwm);
