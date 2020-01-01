@@ -4,6 +4,7 @@ const wheel: SteeringWheel = document.querySelector('#servo');
 const whileAngle = document.getElementById('wheel-angle');
 const debugMonitor = document.querySelector('.debug-monitor');
 
+const normalTime = 100; // ms
 let nextTaskData: {[key in Props]: string};
 let inTask = false;
 enum Props {
@@ -33,6 +34,11 @@ function sendRequest(request: RequestData) {
     cache: 'no-cache',
     method: 'PUT',
   })
+  .then(r => r.text())
+  .then(message => {
+    const interval = Date.now() - time;
+    showDebugLine(`${JSON.stringify(request)}, ${message}, ${interval}ms`, interval > normalTime ? 'danger': '')
+  })
   // .then(() => new Promise(r => setTimeout(() => r(), 1000)))
   .finally(() => {
     inTask = false;
@@ -40,8 +46,6 @@ function sendRequest(request: RequestData) {
       sendRequest(nextTaskData)
       nextTaskData = null;
     }
-    const interval = Date.now() - time;
-    showDebugLine(`${JSON.stringify(request)}, ${interval}ms`, interval > 50 ? 'danger': '')
   });
 }
 function sendRequestSubsiquentelly(data: RequestData) {

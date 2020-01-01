@@ -52,7 +52,7 @@ input[type=range] {
 }
 
 .debug-monitor {
-  height: 100px;
+  height: 200px;
   bottom: 0;
   position: absolute;
   left: 0;
