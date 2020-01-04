@@ -23,32 +23,30 @@ path {
 }
 
 .speed-control-wrapper {
+  width: calc(var(--size) / 2);
+  overflow: hidden;
   position: relative;
 }
 
-input[type=range] {
-  --width: 80px;
-  -webkit-appearance: slider-vertical;
-  width: var(--width);
-  padding: 0 5px;
+.power-arrow-placeholder {
   height: var(--size);
+  width: var(--size);
+  border-radius: 50%;
+  border: 1px solid black;
+  position: relative;
 }
 
-::-webkit-slider-runnable-track {
-  background: #ddd;
-}
-
-::-webkit-slider-thumb {
-  width: var(--width);
-  min-width: var(--width);
-  /* 1 */
-  --height: 60px;
-  height: var(--height);
-  min-height: var(--height);
-  background: #fff;
-
-  border: 2px solid #999;
-  /* 1 */
+.power-arrow {
+  --arrow-width: 80px;
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-top: calc(var(--arrow-width) / 2) solid transparent;
+  border-bottom: calc(var(--arrow-width) / 2) solid transparent;
+  border-right: var(--arrow-width) solid red;
+  left: 20px;
+  top: 50%;
+  margin-top: calc(var(--arrow-width) / (-2));
 }
 
 .debug-monitor {

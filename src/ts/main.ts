@@ -5,14 +5,14 @@ const whileAngle = document.getElementById('wheel-angle');
 const debugMonitor = document.querySelector('.debug-monitor');
 
 const normalTime = 100; // ms
-let nextTaskData: {[key in Props]: string};
+let nextTaskData: { [key in Props]: string };
 let inTask = false;
 enum Props {
   angle = 'driveWheelAngle',
   power = 'drivePower'
 }
 
-type RequestData = {[key in Props]?: string};
+type RequestData = { [key in Props]?: string };
 
 function showDebugLine(value, className = '') {
   const line = document.createElement('div');
@@ -24,31 +24,28 @@ function showDebugLine(value, className = '') {
 function sendRequest(request: RequestData) {
   const time = Date.now();
   inTask = true;
-  console.log(new Date().toISOString())
-
   const url = new URL('/wheels', location.origin);
-  // url.search = new URLSearchParams({ driveWheelAngle: curSteering.toString(), drivePower: effectivePower.toString() }).toString()
-  url.search = new URLSearchParams(request).toString()
+  url.search = new URLSearchParams(request).toString();
 
   fetch(url.href, {
     cache: 'no-cache',
     method: 'PUT',
   })
-  .then(r => r.text())
-  .then(message => {
-    const interval = Date.now() - time;
-    showDebugLine(`${JSON.stringify(request)}, ${message}, ${interval}ms`, interval > normalTime ? 'danger': '')
-  })
-  // .then(() => new Promise(r => setTimeout(() => r(), 1000)))
-  .finally(() => {
-    inTask = false;
-    if (nextTaskData) {
-      sendRequest(nextTaskData)
-      nextTaskData = null;
-    }
-  });
+    .then(r => r.text())
+    .then(message => {
+      const interval = Date.now() - time;
+      showDebugLine(`${JSON.stringify(request)}, ${message}, ${interval}ms`, interval > normalTime ? 'danger' : '')
+    })
+    // .then(() => new Promise(r => setTimeout(() => r(), 1000)))
+    .finally(() => {
+      inTask = false;
+      if (nextTaskData) {
+        sendRequest(nextTaskData);
+        nextTaskData = null;
+      }
+    });
 }
-function sendRequestSubsiquentelly(data: RequestData) {
+function sendRequestSubsequently(data: RequestData) {
   if (inTask) {
     nextTaskData = Object.assign({}, nextTaskData, data);
   } else {
@@ -58,18 +55,22 @@ function sendRequestSubsiquentelly(data: RequestData) {
 
 function handler() {
   const value = wheel.value.toString();
-  sendRequestSubsiquentelly({[Props.angle]: value});
+  sendRequestSubsequently({ [Props.angle]: value });
   whileAngle.innerText = value;
 }
 wheel.addEventListener(DrivingWheelTurnEventName, handler);
 
-const speedControl = document.getElementById('speed-control') as HTMLInputElement;
+const speedControl = document.getElementById('power') as SteeringWheel;
 const speedValue = document.getElementById('speed-control-value');
-speedControl.addEventListener('input', e => {
-  e.stopPropagation();
-  const curPower = +speedControl.value;
-  const effectivePower = curPower ? Math.sign(curPower) * (Math.abs(curPower) + 60) : 0;
+let curPower = 0;
+speedControl.addEventListener(DrivingWheelTurnEventName, e => {
+  const newPower = Math.abs(speedControl.value) < 10 ? 0 : speedControl.value;
+  if (newPower === curPower) {
+    return;
+  }
+  curPower = newPower;
+  const effectivePower = curPower ? Math.sign(curPower) * (Math.abs(curPower / 2) + 55) : 0;
 
-  sendRequestSubsiquentelly({[Props.power]: effectivePower.toString()});
-  speedValue.innerText = speedControl.value;
+  sendRequestSubsequently({ [Props.power]: effectivePower.toString() });
+  speedValue.innerText = speedControl.value.toString();
 });
