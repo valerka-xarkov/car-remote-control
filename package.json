@@ -18,7 +18,7 @@
     "inline-script-loader": "^1.0.7",
     "mini-css-extract-plugin": "^0.9.0",
     "script-loader": "^0.7.2",
-    "simple-steering-wheel": "^0.3.3",
+    "simple-steering-wheel": "^0.3.5",
     "style-loader": "^1.0.1",
     "terser-webpack-plugin": "^2.3.0",
     "typescript": "^3.7.3",
@@ -38,6 +38,8 @@
     "html-webpack-inline-style-plugin": "^0.2.0",
     "lodash": "^4.17.15",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "prettier": "^1.19.1",
+    "prettier-tslint": "^0.4.2",
     "script-ext-html-webpack-plugin": "^2.1.4",
     "ts-loader": "^6.2.0",
     "tsify": "^4.0.1",
@@ -46,5 +48,11 @@
     "watchify": "^3.11.1",
     "webpack": "^4.41.2",
     "webpack-dev-server": "^3.10.1"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true,
+    "printWidth": 120
   }
 }

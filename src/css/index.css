@@ -13,11 +13,10 @@ steering-wheel {
 svg {
   width: var(--size);
   height: var(--size);
-
 }
 
 path {
-  fill: #F525E8;
+  fill: #f525e8;
   fill: pink;
   transform-origin: 50% 50%;
 }
@@ -47,6 +46,7 @@ path {
   left: 20px;
   top: 50%;
   margin-top: calc(var(--arrow-width) / (-2));
+  z-index: -1;
 }
 
 .debug-monitor {

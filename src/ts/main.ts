@@ -2,7 +2,7 @@ import { DrivingWheelTurnEventName, SteeringWheel } from 'simple-steering-wheel'
 // import { debounce } from './utils';
 const wheel: SteeringWheel = document.querySelector('#servo');
 const whileAngle = document.getElementById('wheel-angle');
-const debugMonitor = document.querySelector('.debug-monitor');
+const debugMonitor = document.querySelector('.debug-monitor') as HTMLElement;
 
 const normalTime = 100; // ms
 let nextTaskData: { [key in Props]: string };
@@ -14,36 +14,53 @@ enum Props {
 
 type RequestData = { [key in Props]?: string };
 
-function showDebugLine(value, className = '') {
+function initDebugLineSwitcher() {
+  const switcher = document.querySelector('.monitor-switcher-placeholder input') as HTMLInputElement;
+  switcher.addEventListener('change', () => {
+    debugMonitor.hidden = !switcher.checked;
+  });
+}
+initDebugLineSwitcher();
+function addDebugLine(value, className = '') {
   const line = document.createElement('div');
   line.innerText = value;
   line.className = className;
   debugMonitor.appendChild(line);
   debugMonitor.scrollTop = 100000000;
 }
-function sendRequest(request: RequestData) {
+
+function sendRequest(requestData: RequestData) {
   const time = Date.now();
   inTask = true;
   const url = new URL('/wheels', location.origin);
-  url.search = new URLSearchParams(request).toString();
+  url.search = new URLSearchParams(requestData).toString();
 
-  fetch(url.href, {
-    cache: 'no-cache',
-    method: 'PUT',
-  })
-    .then(r => r.text())
-    .then(message => {
+  const request = new XMLHttpRequest();
+  request.timeout = 100;
+  request.addEventListener('loadstart', () => {
+    setTimeout(() => {
+      request.abort();
       const interval = Date.now() - time;
-      showDebugLine(`${JSON.stringify(request)}, ${message}, ${interval}ms`, interval > normalTime ? 'danger' : '')
-    })
-    // .then(() => new Promise(r => setTimeout(() => r(), 1000)))
-    .finally(() => {
-      inTask = false;
-      if (nextTaskData) {
-        sendRequest(nextTaskData);
-        nextTaskData = null;
-      }
-    });
+      addDebugLine(`HANGED ${JSON.stringify(requestData)}, ${request.responseText}, ${interval}ms`, 'danger');
+    }, 50);
+  });
+  request.addEventListener('load', () => {
+    const interval = Date.now() - time;
+    addDebugLine(
+      `${JSON.stringify(requestData)}, ${request.responseText}, ${interval}ms`,
+      interval > normalTime ? 'danger' : ''
+    );
+  });
+  request.addEventListener('loadend', () => {
+    inTask = false;
+    if (nextTaskData) {
+      sendRequest(nextTaskData);
+      nextTaskData = null;
+    }
+  });
+
+  request.open('PUT', url.href);
+  request.send();
 }
 function sendRequestSubsequently(data: RequestData) {
   if (inTask) {
