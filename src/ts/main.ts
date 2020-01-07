@@ -37,13 +37,6 @@ function sendRequest(requestData: RequestData) {
 
   const request = new XMLHttpRequest();
   request.timeout = 100;
-  request.addEventListener('loadstart', () => {
-    setTimeout(() => {
-      request.abort();
-      const interval = Date.now() - time;
-      addDebugLine(`HANGED ${JSON.stringify(requestData)}, ${request.responseText}, ${interval}ms`, 'danger');
-    }, 50);
-  });
   request.addEventListener('load', () => {
     const interval = Date.now() - time;
     addDebugLine(
