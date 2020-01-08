@@ -115,11 +115,14 @@ void setAngle(int value) {
   angle = value;
   const float minAngle = -50;
   const float maxAngle = 50;
+
   const float minTime = 500; //ms
   const float maxTime = 2260; // ms
+  const float minEfTime = 500 + (maxTime - minTime) * 0.04;
+  const float maxEfTime = 2260 - (maxTime - minTime) * 0.14;
   const float microSecondsCount = 1000000;
   const float maxPwm = 65536;
-  const float pwm = maxPwm * (minTime + (maxTime - minTime) * (-value - minAngle) / (maxAngle - minAngle)) / microSecondsCount  * servoFreq;
+  const float pwm = maxPwm * (minEfTime + (maxEfTime - minEfTime) * (-value - minAngle) / (maxAngle - minAngle)) / microSecondsCount  * servoFreq;
   char debugMessage[50];
   snprintf(debugMessage, 30, "PWM: %d", (int)pwm);
   Serial.println(debugMessage);
