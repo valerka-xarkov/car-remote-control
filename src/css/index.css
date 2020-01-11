@@ -2,6 +2,25 @@
   display: flex;
   justify-content: space-between;
   --size: 300px;
+  --border: 1px solid green;
+  --radius: 5px;
+  --wheel-color: pink;
+}
+.touched {
+  background-color: #e8fbe8;
+}
+
+.wheel {
+  border-width: 0 30px;
+  border-style: solid;
+  border-color: transparent;
+}
+
+.wheel.left {
+  border-left-color: green;
+}
+.wheel.right {
+  border-right-color: green;
 }
 
 steering-wheel {
@@ -10,14 +29,18 @@ steering-wheel {
   height: var(--size);
   overflow: hidden;
 }
+
+steering-wheel#servo {
+  border: var(--border);
+  border-radius: var(--radius);
+}
 svg {
   width: var(--size);
   height: var(--size);
 }
 
 path {
-  fill: #f525e8;
-  fill: pink;
+  fill: var(--wheel-color);
   transform-origin: 50% 50%;
 }
 
@@ -25,6 +48,8 @@ path {
   width: calc(var(--size) / 2);
   overflow: hidden;
   position: relative;
+  border: var(--border);
+  border-radius: var(--radius);
 }
 
 .power-arrow-placeholder {
@@ -42,7 +67,7 @@ path {
   height: 0;
   border-top: calc(var(--arrow-width) / 2) solid transparent;
   border-bottom: calc(var(--arrow-width) / 2) solid transparent;
-  border-right: var(--arrow-width) solid red;
+  border-right: var(--arrow-width) solid var(--wheel-color);
   left: 20px;
   top: 50%;
   margin-top: calc(var(--arrow-width) / (-2));

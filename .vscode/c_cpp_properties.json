@@ -1,0 +1,20 @@
+{
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "/opt/arduino-1.8.10/tools/**",
+        "/opt/arduino-1.8.10/hardware/arduino/avr/**",
+        "${default}",
+        "${env.HOME}/.arduino15"
+      ],
+      "forcedInclude": ["/opt/arduino-1.8.10/hardware/arduino/avr/cores/arduino/Arduino.h"],
+      "defines": [],
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "clang-x64"
+    }
+  ],
+  "version": 4
+}
