@@ -2,7 +2,9 @@
   display: flex;
   justify-content: space-between;
   --size: 300px;
-  --border: 1px solid green;
+  --border-color: green;
+  --max-border-color: midnightblue;
+  --border: 1px solid var(--border-color);
   --radius: 5px;
   --wheel-color: pink;
 }
@@ -17,10 +19,18 @@
 }
 
 .wheel.left {
-  border-left-color: green;
+  border-left-color: var(--border-color);
 }
 .wheel.right {
-  border-right-color: green;
+  border-right-color: var(--border-color);
+}
+
+.wheel.left-max {
+  border-left-color: var(--max-border-color);
+}
+
+.wheel.right-max {
+  border-right-color: var(--max-border-color);
 }
 
 steering-wheel {
@@ -45,11 +55,16 @@ path {
 }
 
 .speed-control-wrapper {
+  transition: background-color 0.1s ease;
   width: calc(var(--size) / 2);
   overflow: hidden;
   position: relative;
   border: var(--border);
   border-radius: var(--radius);
+}
+
+.max-power {
+  background-color: var(--max-border-color);
 }
 
 .power-arrow-placeholder {

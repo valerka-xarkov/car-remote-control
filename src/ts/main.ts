@@ -6,6 +6,7 @@ const debugMonitor = document.querySelector('.debug-monitor') as HTMLElement;
 
 const normalTime = 100; // ms
 const minTime = 30; // ms
+const maxAngle = 50;
 const touched = 'touched';
 let nextTaskData: { [key in Props]: string };
 let inTask = false;
@@ -76,7 +77,8 @@ function initPower() {
   const wrapper = document.querySelector('.speed-control-wrapper');
   let curPower = 0;
   speedControl.addEventListener(DrivingWheelTurn, e => {
-    const newPower = Math.abs(speedControl.value) < 10 ? 0 : speedControl.value;
+    const value = speedControl.value;
+    const newPower = Math.abs(value) < 10 ? 0 : value;
     if (newPower === curPower) {
       return;
     }
@@ -84,7 +86,8 @@ function initPower() {
     const effectivePower = curPower ? Math.sign(curPower) * (Math.abs(curPower / 2) + 55) : 0;
 
     sendRequestSubsequently({ [Props.Power]: effectivePower.toString() });
-    speedValue.innerText = speedControl.value.toString();
+    speedValue.innerText = value.toString();
+    wrapper.classList.toggle('max-power', Math.abs(value) === 90);
   });
   speedControl.addEventListener(DrivingWheelTurnStart, () => wrapper.classList.add(touched));
   speedControl.addEventListener(DrivingWheelTurnEnd, () => wrapper.classList.remove(touched));
@@ -97,8 +100,10 @@ function initSpeed() {
     const value = wheel.value.toString();
     sendRequestSubsequently({ [Props.Angle]: value });
     whileAngle.innerText = value;
-    wrapper.classList.toggle('left', wheel.value < 0);
-    wrapper.classList.toggle('right', wheel.value > 0);
+    wrapper.classList.toggle('left', wheel.value < -4);
+    wrapper.classList.toggle('right', wheel.value > 4);
+    wrapper.classList.toggle('left-max', wheel.value === -maxAngle);
+    wrapper.classList.toggle('right-max', wheel.value === maxAngle);
   }
   wheel.addEventListener(DrivingWheelTurn, handler);
   wheel.addEventListener(DrivingWheelTurnStart, () => wheel.classList.add(touched));

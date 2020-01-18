@@ -17,26 +17,30 @@ module.exports = {
       {
         test: /\.ts$/,
         use: 'ts-loader',
-        exclude: /node_modules/,
+        exclude: /node_modules/
       },
       {
         test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader']
       },
-    ],
+      {
+        test: /\.(jpe?g|png|ttf|eot|svg|woff(2)?)(\?[a-z0-9=&.]+)?$/,
+        use: 'base64-inline-loader?limit=1000&name=[name].[ext]'
+      }
+    ]
   },
   resolve: {
-    extensions: ['.ts'],
+    extensions: ['.ts']
   },
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, dest),
+    path: path.resolve(__dirname, dest)
   },
   mode: 'production',
   // mode: 'development',
   optimization: {
     minimize: true,
-    minimizer: [new TerserPlugin(), new OptimizeCSSAssetsPlugin({})],
+    minimizer: [new TerserPlugin(), new OptimizeCSSAssetsPlugin({})]
   },
   plugins: [
     new CleanWebpackPlugin(),
@@ -51,12 +55,12 @@ module.exports = {
         removeScriptTypeAttributes: true,
         removeStyleLinkTypeAttributes: true,
         useShortDoctype: true
-      },
+      }
     }),
     new HtmlWebpackInlineSourcePlugin(),
     new MiniCssExtractPlugin(),
     {
-      apply: (compiler) => {
+      apply: compiler => {
         compiler.hooks.done.tap('AfterEmitPlugin', () => {
           const result = fs.readFileSync('./dist/index.html', 'utf8');
           const jsonResult = JSON.stringify({ data: result });
