@@ -154,8 +154,9 @@ void handleWheels(AsyncWebServerRequest *request) {
     setAngle(getValue( request->getParam("driveWheelAngle")->value()));
   }
   unsigned long afterAngle = micros();
-  char response[100];
-  snprintf(response, 100, "message: %d, power: %d, angle: %d", afterMessages - start, afterPower - afterMessages, afterAngle - afterPower);
+  char response[60];
+  snprintf(response, 61, "power: %d, angle: %d", drivePower, angle);
+  Serial.println(response);
   request->send(200, "text/plain", "ok");
 
   unsigned long afterSend = micros();

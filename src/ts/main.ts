@@ -56,12 +56,14 @@ function sendRequest(requestData: RequestData) {
     }, Math.max(0, minTime - interval));
   });
 
-  request.open('PUT', '/wheels');
-  request.send(
-    Object.keys(requestData)
-      .map(k => `${k}=${requestData[k]}`)
-      .join('&')
+  request.open(
+    'PUT',
+    '/wheels?' +
+      Object.keys(requestData)
+        .map(k => `${k}=${requestData[k]}`)
+        .join('&')
   );
+  request.send();
 }
 function sendRequestSubsequently(data: RequestData) {
   if (inTask) {
