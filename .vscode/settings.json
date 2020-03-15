@@ -53,7 +53,10 @@
     "memory_resource": "cpp",
     "random": "cpp",
     "set": "cpp",
-    "string": "cpp"
-  },
-  "C_Cpp.default.includePath": ["${env.HOME}/.arduino15"]
+    "string": "cpp",
+    "esp_http_server.h": "c",
+    "*.def": "cpp",
+    "bitset": "cpp",
+    "regex": "cpp"
+  }
 }
