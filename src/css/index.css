@@ -1,6 +1,7 @@
 .main {
   display: flex;
   justify-content: space-between;
+  position: relative;
   --size: 300px;
   --border-color: green;
   --max-border-color: midnightblue;
@@ -102,4 +103,26 @@ path {
 
 .danger {
   color: red;
+}
+.img-placeholder {
+  position: absolute;
+  height: var(--size);
+  width: calc(var(--size) * var(--ratio));
+  --ratio: 1.36;
+  top: 0;
+  left: 50%;
+  pointer-events: none;
+  user-select: none;
+  margin-left: calc(var(--size) * var(--ratio) / (-2));
+  z-index: 10;
+}
+img {
+  position: absolute;
+  height: var(--size);
+  width: calc(var(--size) * var(--ratio));
+  display: block;
+}
+
+.hidden {
+  display: none;
 }

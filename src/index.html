@@ -10,7 +10,8 @@
   </head>
 
   <body>
-    <label class="monitor-switcher-placeholder"> <input type="checkbox" /> Show debug monitor </label>
+    <label class="monitor-switcher-placeholder"> <input type="checkbox" class="video" /> Show image </label>
+    <label class="monitor-switcher-placeholder"> <input type="checkbox" class="light" /> Light </label>
     <div class="main">
       <div class="wheel">
         <steering-wheel id="servo" value="0" min-angle="-50" max-angle="50" step="2" end-action-value="0">
@@ -21,7 +22,7 @@
           </svg>
         </steering-wheel>
       </div>
-
+      <div class="img-placeholder"></div>
       <div class="speed-control-wrapper">
         <steering-wheel id="power" value="0" step="2" direction="v" end-action-value="0" min-angle="-90" max-angle="90">
           <div class="power-arrow-placeholder">

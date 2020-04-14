@@ -66,7 +66,7 @@ module.exports = {
           const jsonResult = JSON.stringify({ data: result });
           const code = jsonResult.substr(8, jsonResult.length - 8 - 1);
           // fs.writeFileSync('./dist/result.txt', result);
-          fs.writeFileSync('./web-server/page.c', `const char page[] = ${code};`);
+          fs.writeFileSync('./web-server/CameraWebServer1/page.c', `const char page[] = ${code};`);
         });
       }
     }

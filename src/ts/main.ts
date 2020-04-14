@@ -12,18 +12,38 @@ let nextTaskData: { [key in Props]: string };
 let inTask = false;
 enum Props {
   Angle = 'driveWheelAngle',
-  Power = 'drivePower'
+  Power = 'drivePower',
+  Led = 'led'
 }
 
 type RequestData = { [key in Props]?: string };
 
-function initDebugLineSwitcher() {
-  const switcher = document.querySelector('.monitor-switcher-placeholder input') as HTMLInputElement;
+function initImageSwitcher() {
+  const img = document.createElement('img');
+  const src = `http://${location.hostname}:81/stream`;
+  const placeholder = document.querySelector('.img-placeholder');
+  const switcher = document.querySelector('.monitor-switcher-placeholder .video') as HTMLInputElement;
+  placeholder.classList.toggle('hidden', !switcher.checked);
   switcher.addEventListener('change', () => {
-    debugMonitor.hidden = !switcher.checked;
+    placeholder.classList.toggle('hidden', !switcher.checked);
+    if (switcher.checked) {
+      img.src = src;
+      placeholder.appendChild(img);
+    } else {
+      placeholder.removeChild(img);
+      img.src = null;
+    }
   });
 }
-initDebugLineSwitcher();
+initImageSwitcher();
+
+function initLed() {
+  const led = document.querySelector('.monitor-switcher-placeholder .light') as HTMLInputElement;
+  led.addEventListener('change', () => {
+    sendRequest({ [Props.Led]: led.checked.toString() });
+  });
+}
+initLed();
 
 function addDebugLine(value, className = '') {
   const line = document.createElement('div');
@@ -57,7 +77,7 @@ function sendRequest(requestData: RequestData) {
   });
 
   request.open(
-    'PUT',
+    'GET',
     '/wheels?' +
       Object.keys(requestData)
         .map(k => `${k}=${requestData[k]}`)

@@ -35,25 +35,25 @@
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 
-#define LED_BUILTIN 2   // Set the GPIO pin where you connected your test LED or comment this line out if your dev board has a built-in LED
 #define PART_BOUNDARY "123456789000000000000987654321"
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
 static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
 static const char* _STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
 
-const int ledPin = 2;
+const int ledPin = 33;
+const int flashLed = 4;
 const int freq = 5000;
 const int ledChannel = 0;
 // const int resolution = 8;
 
-const int servoPin = 4;
+const int servoPin = 2;
 const int servoChannel = 1;
 const int servoResolution = 16;
 const int servoFreq = 50;
 
-const int engEnabledPin = 5;
-const int engFirstPin = 16;
-const int engSecondPin = 17;
+const int engEnabledPin = 14;
+const int engFirstPin = 15;
+const int engSecondPin = 13;
 const int engChanel = 2;
 const int engResolution = 8;
 const int engFreq = 20000;
@@ -85,7 +85,7 @@ int phase = 0;
 // 0 - stream part, 1 - content, 2 - boundary
 int copiedPart = 0;
 int handledTimeStart = 0;
-const int maxHandledTime = 5000;
+const int maxHandledTime = 20000;
 // DNS server
 const byte DNS_PORT = 53;
 
@@ -95,21 +95,22 @@ DNSServer dnsServer;
 AsyncWebServer server(80);
 
 void setup() {
-//  pinMode(LED_BUILTIN, OUTPUT);
-//  // pinMode(engEnabledPin, OUTPUT);
-//  pinMode(engFirstPin, OUTPUT);
-//  pinMode(engSecondPin, OUTPUT);
+ // pinMode(engEnabledPin, OUTPUT);
+ pinMode(ledPin, OUTPUT);
+ pinMode(flashLed, OUTPUT);
+ pinMode(engFirstPin, OUTPUT);
+ pinMode(engSecondPin, OUTPUT);
 
   // ledcSetup(ledChannel, freq, resolution);
   // attach the channel to the GPIO to be controlled
   // ledcAttachPin(ledPin, ledChannel);
-//
-//  ledcSetup(servoChannel, servoFreq, servoResolution);
-//  ledcAttachPin(servoPin, servoChannel);
-//
-//  ledcSetup(engChanel, engFreq, engResolution);
-//  // attach the channel to the GPIO to be controlled
-//  ledcAttachPin(engEnabledPin, engChanel);
+
+ ledcSetup(servoChannel, servoFreq, servoResolution);
+ ledcAttachPin(servoPin, servoChannel);
+
+ ledcSetup(engChanel, engFreq, engResolution);
+ // attach the channel to the GPIO to be controlled
+ ledcAttachPin(engEnabledPin, engChanel);
 
   Serial.begin(115200);
   Serial.println();
@@ -125,6 +126,7 @@ void setup() {
   server.on("/wheels", HTTP_PUT, handleWheels);
   server.on("/image", HTTP_GET, handleImage);
   server.on("/image-stream", HTTP_GET, handleImageStream);
+  server.on("/led", HTTP_GET, handleLed);
 
   // server.on("/inline", []() {
   //   server.send(200, "text/plain", "this works as well");
@@ -158,12 +160,12 @@ void setPower(int value) {
   if (value < 0) {
     digitalWrite(engSecondPin, LOW);
     digitalWrite(engFirstPin, HIGH);
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(ledPin, HIGH);
   }
   if (value > 0) {
     digitalWrite(engFirstPin, LOW);
     digitalWrite(engSecondPin, HIGH);
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(ledPin, LOW);
   }
   ledcWrite(engChanel, (int)curPower);
 }
@@ -201,6 +203,15 @@ void showMessages(AsyncWebServerRequest *request) {
     Serial.println(message);
   }
 
+}
+
+void handleLed(AsyncWebServerRequest *request) {
+  if (request->hasParam("enabled") && request->getParam("enabled")->value().equals("true")) {
+    digitalWrite(flashLed, HIGH);
+  } else {
+    digitalWrite(flashLed, LOW);
+  }
+  request->send(200, "text/plain", "ok");
 }
 void handleWheels(AsyncWebServerRequest *request) {
   unsigned long start = micros();
@@ -383,7 +394,7 @@ void setupCameraServer() {
 //    config.jpeg_quality = 10;
 //    config.fb_count = 2;
 //  } else {
-    config.frame_size = FRAMESIZE_CIF;
+    config.frame_size = FRAMESIZE_HQVGA;
     // config.frame_size = FRAMESIZE_QQVGA;
     config.jpeg_quality = 10;
     config.fb_count = 1;
@@ -396,8 +407,6 @@ void setupCameraServer() {
     return;
   }
   Serial.println("Camera Initialized");
-  // Start streaming web server
-  // startCameraServer();
 }
 
 void loop(void) {
