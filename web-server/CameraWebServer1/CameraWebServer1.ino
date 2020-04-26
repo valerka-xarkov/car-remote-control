@@ -26,7 +26,12 @@ const char ssid_client[] = "Xperia C_4462";
 const char password_client[] = "059a3e2dd400";
 
 void startCameraServer();
-
+void setPower(int value);
+void WiFiStationDisconnected(system_event_id_t event) {
+  if (WiFi.softAPgetStationNum() == 0) {
+    setPower(0);
+  }
+}
 void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
@@ -94,10 +99,11 @@ void setup() {
   //You can remove the password parameter if you want the AP to be open.
   WiFi.mode(WIFI_AP);
 
-  Serial.println(WiFi.softAP(ssid,password) ? "soft-AP setup": "Failed to connect");
+  Serial.println(WiFi.softAP(ssid, password) ? "soft-AP setup": "Failed to connect");
   delay(100);
   Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet)? "Configuring Soft AP" : "Error in Configuration");
   Serial.println(WiFi.softAPIP());
+  WiFi.onEvent(WiFiStationDisconnected, SYSTEM_EVENT_AP_STADISCONNECTED);
 #endif
 #if defined(WI_FI_CLIEND)
 

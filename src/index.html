@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=710, user-scalable=no" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="icon" type="image/png" sizes="16x16" href="${require('./assets/favicon.png')}" />
     <link rel="icon" type="image/png" sizes="64x64" href="${require('./assets/favicon-big.png')}" />
@@ -10,9 +10,22 @@
   </head>
 
   <body>
-    <label class="monitor-switcher-placeholder"> <input type="checkbox" class="video" /> Show image </label>
-    <label class="monitor-switcher-placeholder"> <input type="checkbox" class="light" /> Light </label>
-    <div class="main">
+    <div class="actions">
+      <label class="monitor-switcher-placeholder"> <input type="checkbox" class="video" /> Show image </label>
+      <label class="monitor-switcher-placeholder"> <input type="checkbox" class="light" /> Light </label>
+    </div>
+    <div class="main-content">
+      <div class="img-placeholder"></div>
+      <area-selector
+        height="300"
+        width="300"
+        pointer-size="100"
+        reset-when-stop="true"
+        zero-x="150"
+        zero-y="150"
+      ></area-selector>
+    </div>
+    <!-- <div class="main">
       <div class="wheel">
         <steering-wheel id="servo" value="0" min-angle="-50" max-angle="50" step="2" end-action-value="0">
           <svg viewBox="0 0 32 32">
@@ -22,7 +35,7 @@
           </svg>
         </steering-wheel>
       </div>
-      <div class="img-placeholder"></div>
+
       <div class="speed-control-wrapper">
         <steering-wheel id="power" value="0" step="2" direction="v" end-action-value="0" min-angle="-90" max-angle="90">
           <div class="power-arrow-placeholder">
@@ -30,7 +43,7 @@
           </div>
         </steering-wheel>
       </div>
-    </div>
+    </div> -->
     <span id="wheel-angle"></span>
     <span id="speed-control-value"></span>
     <div class="debug-monitor" hidden></div>

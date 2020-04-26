@@ -1,31 +1,22 @@
-import { DrivingWheelTurn, DrivingWheelTurnEnd, DrivingWheelTurnStart, SteeringWheel } from 'simple-steering-wheel';
+// import { DrivingWheelTurn, DrivingWheelTurnEnd, DrivingWheelTurnStart, SteeringWheel } from 'simple-steering-wheel';
+import 'simple-steering-wheel';
+import { AreaSelector } from 'simple-steering-wheel';
+import { Props, sendRequestSubsequently } from './connection.service';
+
 // import { debounce } from './utils';
-const wheel: SteeringWheel = document.querySelector('#servo');
-const whileAngle = document.getElementById('wheel-angle');
-const debugMonitor = document.querySelector('.debug-monitor') as HTMLElement;
+// const wheel: SteeringWheel = document.querySelector('#servo');
+// const whileAngle = document.getElementById('wheel-angle');
+// const debugMonitor = document.querySelector('.debug-monitor') as HTMLElement;
 
-const normalTime = 100; // ms
-const minTime = 30; // ms
-const maxAngle = 50;
-const touched = 'touched';
-let nextTaskData: { [key in Props]: string };
-let inTask = false;
-enum Props {
-  Angle = 'driveWheelAngle',
-  Power = 'drivePower',
-  Led = 'led'
-}
-
-type RequestData = { [key in Props]?: string };
+// const maxAngle = 50;
+// const touched = 'touched';
 
 function initImageSwitcher() {
   const img = document.createElement('img');
   const src = `http://${location.hostname}:81/stream`;
   const placeholder = document.querySelector('.img-placeholder');
   const switcher = document.querySelector('.monitor-switcher-placeholder .video') as HTMLInputElement;
-  placeholder.classList.toggle('hidden', !switcher.checked);
   switcher.addEventListener('change', () => {
-    placeholder.classList.toggle('hidden', !switcher.checked);
     if (switcher.checked) {
       img.src = src;
       placeholder.appendChild(img);
@@ -35,105 +26,80 @@ function initImageSwitcher() {
     }
   });
 }
-initImageSwitcher();
 
 function initLed() {
   const led = document.querySelector('.monitor-switcher-placeholder .light') as HTMLInputElement;
   led.addEventListener('change', () => {
-    sendRequest({ [Props.Led]: led.checked.toString() });
+    sendRequestSubsequently({ [Props.Led]: led.checked.toString() });
   });
 }
-initLed();
 
-function addDebugLine(value, className = '') {
-  const line = document.createElement('div');
-  line.innerText = value;
-  line.className = className;
-  debugMonitor.appendChild(line);
-  debugMonitor.scrollTop = 100000000;
-}
+// function addDebugLine(value, className = '') {
+//   const line = document.createElement('div');
+//   line.innerText = value;
+//   line.className = className;
+//   debugMonitor.appendChild(line);
+//   debugMonitor.scrollTop = 100000000;
+// }
 
-function sendRequest(requestData: RequestData) {
-  const time = Date.now();
-  inTask = true;
+// function initPower() {
+//   const speedControl = document.getElementById('power') as SteeringWheel;
+//   const speedValue = document.getElementById('speed-control-value');
+//   const wrapper = document.querySelector('.speed-control-wrapper');
+//   let curPower = 0;
+//   speedControl.addEventListener(DrivingWheelTurn, e => {
+//     const value = speedControl.value;
+//     const newPower = Math.abs(value) < 10 ? 0 : value;
+//     if (newPower === curPower) {
+//       return;
+//     }
+//     curPower = newPower;
+//     const effectivePower = curPower ? Math.sign(curPower) * (Math.abs(curPower / 2) + 55) : 0;
 
-  const request = new XMLHttpRequest();
-  request.addEventListener('load', () => {
-    const interval = Date.now() - time;
-    addDebugLine(
-      `${JSON.stringify(requestData)}, ${request.responseText}, ${interval}ms`,
-      interval > normalTime ? 'danger' : ''
-    );
+//     sendRequestSubsequently({ [Props.Power]: effectivePower.toString() });
+//     speedValue.innerText = value.toString();
+//     wrapper.classList.toggle('max-power', Math.abs(value) === 90);
+//   });
+//   speedControl.addEventListener(DrivingWheelTurnStart, () => wrapper.classList.add(touched));
+//   speedControl.addEventListener(DrivingWheelTurnEnd, () => wrapper.classList.remove(touched));
+// }
+
+// function initSpeed() {
+//   const wrapper = document.querySelector('.wheel');
+
+//   function handler() {
+//     const value = wheel.value.toString();
+//     sendRequestSubsequently({ [Props.Angle]: value });
+//     whileAngle.innerText = value;
+//     wrapper.classList.toggle('left', wheel.value < -4);
+//     wrapper.classList.toggle('right', wheel.value > 4);
+//     wrapper.classList.toggle('left-max', wheel.value === -maxAngle);
+//     wrapper.classList.toggle('right-max', wheel.value === maxAngle);
+//   }
+//   wheel.addEventListener(DrivingWheelTurn, handler);
+//   wheel.addEventListener(DrivingWheelTurnStart, () => wheel.classList.add(touched));
+//   wheel.addEventListener(DrivingWheelTurnEnd, () => wheel.classList.remove(touched));
+// }
+
+function initArea() {
+  const area = document.querySelector('area-selector') as AreaSelector;
+  const maxWheelTurn = 50;
+  const minPower = 55;
+  const maxPower = 100;
+  area.addEventListener('changed', () => {
+    const position = area.pointFromZeroPercents();
+    const newPower = Math.sign(position.y) * Math.round(Math.abs(position.y) * (maxPower - minPower) + minPower);
+    const newAngle = Math.round(position.x * maxWheelTurn);
+    sendRequestSubsequently({ [Props.Power]: newPower.toString(), [Props.Angle]: newAngle.toString() });
   });
-  request.addEventListener('loadend', () => {
-    const interval = Date.now() - time;
-    setTimeout(() => {
-      inTask = false;
-      if (nextTaskData) {
-        sendRequest(nextTaskData);
-        nextTaskData = null;
-      }
-    }, Math.max(0, minTime - interval));
-  });
-
-  request.open(
-    'GET',
-    '/wheels?' +
-      Object.keys(requestData)
-        .map(k => `${k}=${requestData[k]}`)
-        .join('&')
-  );
-  request.send();
-}
-function sendRequestSubsequently(data: RequestData) {
-  if (inTask) {
-    nextTaskData = Object.assign({}, nextTaskData, data);
-  } else {
-    sendRequest(data);
-  }
 }
 
-function initPower() {
-  const speedControl = document.getElementById('power') as SteeringWheel;
-  const speedValue = document.getElementById('speed-control-value');
-  const wrapper = document.querySelector('.speed-control-wrapper');
-  let curPower = 0;
-  speedControl.addEventListener(DrivingWheelTurn, e => {
-    const value = speedControl.value;
-    const newPower = Math.abs(value) < 10 ? 0 : value;
-    if (newPower === curPower) {
-      return;
-    }
-    curPower = newPower;
-    const effectivePower = curPower ? Math.sign(curPower) * (Math.abs(curPower / 2) + 55) : 0;
-
-    sendRequestSubsequently({ [Props.Power]: effectivePower.toString() });
-    speedValue.innerText = value.toString();
-    wrapper.classList.toggle('max-power', Math.abs(value) === 90);
-  });
-  speedControl.addEventListener(DrivingWheelTurnStart, () => wrapper.classList.add(touched));
-  speedControl.addEventListener(DrivingWheelTurnEnd, () => wrapper.classList.remove(touched));
-}
-
-function initSpeed() {
-  const wrapper = document.querySelector('.wheel');
-
-  function handler() {
-    const value = wheel.value.toString();
-    sendRequestSubsequently({ [Props.Angle]: value });
-    whileAngle.innerText = value;
-    wrapper.classList.toggle('left', wheel.value < -4);
-    wrapper.classList.toggle('right', wheel.value > 4);
-    wrapper.classList.toggle('left-max', wheel.value === -maxAngle);
-    wrapper.classList.toggle('right-max', wheel.value === maxAngle);
-  }
-  wheel.addEventListener(DrivingWheelTurn, handler);
-  wheel.addEventListener(DrivingWheelTurnStart, () => wheel.classList.add(touched));
-  wheel.addEventListener(DrivingWheelTurnEnd, () => wheel.classList.remove(touched));
-}
 function initHandlers() {
-  initSpeed();
-  initPower();
+  // initSpeed();
+  // initPower();
+  initLed();
+  initImageSwitcher();
+  initArea();
 }
 
 initHandlers();

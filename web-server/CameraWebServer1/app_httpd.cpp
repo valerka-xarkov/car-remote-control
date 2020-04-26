@@ -702,18 +702,16 @@ esp_err_t wheelHandler(httpd_req_t *req) {
               Serial.print("variable LED: ");
               Serial.println(variable);
               setLed(variable);
-            } else if (httpd_query_key_value(buf, "drivePower", variable, sizeof(variable)) == ESP_OK) {
+            }
+            if (httpd_query_key_value(buf, "drivePower", variable, sizeof(variable)) == ESP_OK) {
               Serial.print("variable drivePower: ");
               Serial.println(variable);
               setPower(atoi(variable));
-            } else if (httpd_query_key_value(buf, "driveWheelAngle", variable, sizeof(variable)) == ESP_OK) {
+            }
+            if (httpd_query_key_value(buf, "driveWheelAngle", variable, sizeof(variable)) == ESP_OK) {
               Serial.print("variable driveWheelAngle: ");
               Serial.println(variable);
               setAngle(atoi(variable));
-            } else {
-                free(buf);
-                httpd_resp_send_404(req);
-                return ESP_FAIL;
             }
         } else {
             free(buf);

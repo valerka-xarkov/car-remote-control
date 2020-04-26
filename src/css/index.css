@@ -1,18 +1,31 @@
-.main {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
+body {
   --size: 300px;
   --border-color: green;
   --max-border-color: midnightblue;
   --border: 1px solid var(--border-color);
   --radius: 5px;
   --wheel-color: pink;
+  margin: 0;
+}
+/* .main {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+} */
+
+.main-content {
+  display: flex;
+  width: 710px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.actions {
+  padding: 5px;
 }
 .touched {
   background-color: #e8fbe8;
 }
-
+/*
 .wheel {
   border-width: 0 30px;
   border-style: solid;
@@ -32,8 +45,8 @@
 
 .wheel.right-max {
   border-right-color: var(--max-border-color);
-}
-
+} */
+/*
 steering-wheel {
   display: block;
   width: var(--size);
@@ -53,7 +66,7 @@ svg {
 path {
   fill: var(--wheel-color);
   transform-origin: 50% 50%;
-}
+} */
 
 .speed-control-wrapper {
   transition: background-color 0.1s ease;
@@ -63,11 +76,11 @@ path {
   border: var(--border);
   border-radius: var(--radius);
 }
-
+/*
 .max-power {
   background-color: var(--max-border-color);
-}
-
+} */
+/*
 .power-arrow-placeholder {
   height: var(--size);
   width: var(--size);
@@ -88,7 +101,7 @@ path {
   top: 50%;
   margin-top: calc(var(--arrow-width) / (-2));
   z-index: -1;
-}
+} */
 
 .debug-monitor {
   height: 200px;
@@ -105,24 +118,22 @@ path {
   color: red;
 }
 .img-placeholder {
-  position: absolute;
+  --ratio: 1.33;
   height: var(--size);
   width: calc(var(--size) * var(--ratio));
-  --ratio: 1.36;
-  top: 0;
-  left: 50%;
-  pointer-events: none;
-  user-select: none;
-  margin-left: calc(var(--size) * var(--ratio) / (-2));
-  z-index: 10;
 }
 img {
   position: absolute;
   height: var(--size);
   width: calc(var(--size) * var(--ratio));
   display: block;
+  transform: rotate(180deg);
 }
 
 .hidden {
   display: none;
+}
+
+.aria-selector-pointer {
+  border: 1px solid red;
 }
