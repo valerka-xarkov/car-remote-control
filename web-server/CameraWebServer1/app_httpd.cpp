@@ -616,7 +616,7 @@ static esp_err_t carHandler(httpd_req_t *req){
 void wheelsSetup() {
     // pinMode(engEnabledPin, OUTPUT);
     pinMode(ledPin, OUTPUT);
-    digitalWrite(ledPin, HIGH);
+    digitalWrite(ledPin, LOW);
     pinMode(flashLed, OUTPUT);
 
     pinMode(engFirstPin, OUTPUT);
